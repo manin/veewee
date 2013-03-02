@@ -23,6 +23,8 @@ module Veewee
     attr_accessor :kickstart_port, :kickstart_ip, :kickstart_timeout, :kickstart_file
 
     attr_accessor :ssh_login_timeout, :ssh_user, :ssh_password, :ssh_key, :ssh_host_port, :ssh_guest_port
+    
+    attr_accessor :nic_count
 
     attr_accessor :winrm_login_timeout, :winrm_user, :winrm_password, :winrm_host_port, :winrm_guest_port
 

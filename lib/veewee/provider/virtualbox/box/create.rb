@@ -52,6 +52,7 @@ module Veewee
 
           self.add_floppy_controller
           self.attach_floppy
+          self.add_nic
 
           if definition.winrm_user && definition.winrm_password # prefer winrm 
             env.ui.warn "Using winrm because winrm_user and winrm_password are both set"

@@ -145,6 +145,16 @@ module Veewee
             shell_exec("#{command}")
           end
         end
+        
+        def add_nic
+          unless definition.nic_count.nil?
+            nc = (definition.nic_count.to_i > 8) ?  8 : definition.nic_count.to_i
+            2.upto nc do |i|
+              command="#{@vboxcmd} modifyvm \"#{name}\" --nic#{i} nat"
+              shell_exec("#{command}")
+            end
+          end
+        end
 
         def vbox_os_type_id(veewee_type_id)
           type=env.ostypes[veewee_type_id][:vbox]
