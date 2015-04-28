@@ -12,7 +12,7 @@ module Veewee
           Fog.credentials[:libvirt_uri] ||= "qemu:///system"
 
           env.logger.info "Setting libvirt IP Command if not already defined in .fog config file"
-          Fog.credentials[:libvirt_ip_command] ||= "arp -an |grep $mac|cut -d '(' -f 2 | cut -d ')' -f 1"
+          Fog.credentials[:libvirt_ip_command] ||= "arp -an |grep -i $mac|cut -d '(' -f 2 | cut -d ')' -f 1"
 
           env.logger.info "Opening a libvirt connection using fog.io"
           begin
@@ -46,7 +46,7 @@ module Veewee
           conn.pools.any? or raise Veewee::Error, "You need at least one (active) storage pool defined in #{Fog.credentials[:libvirt_uri]}."
 
           env.logger.info "Checking availability of the arp utility"
-          shell_exec("arp").status.zero? or raise Veewee::Error, "Could not execute the arp command. This is required to find the IP address of the VM"
+          shell_exec("arp -an").status.zero? or raise Veewee::Error, "Could not execute the arp command. This is required to find the IP address of the VM"
 
         end
 

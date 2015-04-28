@@ -35,15 +35,16 @@ module Veewee
             end
           end
 
-          @@special_keys=Hash.new;
+          @@special_keys = Hash.new;
           @@special_keys['<Enter>'] = '1c 9c';
           @@special_keys['<Backspace>'] = '0e 8e';
+          @@special_keys['<Bs>'] = '0e 8e';
           @@special_keys['<Spacebar>'] = '39 b9';
           @@special_keys['<Return>'] = '1c 9c'
           @@special_keys['<Esc>'] = '01 81';
           @@special_keys['<Tab>'] = '0f 8f';
           @@special_keys['<KillX>'] = '1d 38 0e b8';
-          @@special_keys['<Wait>'] = 'wait';
+          @@special_keys['<Wait(\d*)>'] = 'wait';
 
           @@special_keys['<Up>'] = '48 c8';
           @@special_keys['<Down>'] = '50 d0';
@@ -52,6 +53,7 @@ module Veewee
           @@special_keys['<End>'] = '4f cf';
           @@special_keys['<Insert>'] = '52 d2';
           @@special_keys['<Delete>'] = '53 d3';
+          @@special_keys['<Del>'] = '53 d3';
           @@special_keys['<Left>'] = '4b cb';
           @@special_keys['<Right>'] = '4d cd';
           @@special_keys['<Home>'] = '47 c7';
@@ -69,13 +71,15 @@ module Veewee
 
             until thestring.length == 0
               nospecial=true;
-              @@special_keys.keys.each { |key|
-                if thestring.start_with?(key)
+              @@special_keys.each { |key, value|
+                if
+                  result = thestring.match(/^#{key}/i)
+                then
                   #take thestring
                   #check if it starts with a special key + pop special string
-                  keycodes=keycodes+@@special_keys[key]+' ';
-                  thestring=thestring.slice(key.length,thestring.length-key.length)
-                  nospecial=false;
+                  keycodes += value + result.captures.join(",") + ' '
+                  thestring = thestring.slice(result.to_s.length, thestring.length-result.to_s.length)
+                  nospecial = false;
                   break;
                 end
               }

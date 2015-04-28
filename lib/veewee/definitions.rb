@@ -11,16 +11,20 @@ module Veewee
 
     def initialize(env)
       @env = env
+      @definitions = {}
       return self
     end
 
+
     def [](name)
-      begin
-        definition = Veewee::Definition.load(name, env)
-        return definition
-      rescue Veewee::DefinitionNotExist
-        return nil
+      if @definitions[name].nil?
+        begin
+          @definitions[name] = Veewee::Definition.load(name, env)
+        rescue Veewee::DefinitionNotExist
+          return nil
+        end
       end
+      @definitions[name]
     end
 
     # Fetch all definitions
@@ -63,7 +67,7 @@ module Veewee
 
       git_template = false
       # Check if the template is a git repo
-      if template_name.start_with?("git://")
+      if template_name.start_with?("git://", "git+ssh://", "git+http://")
         git_template = true
       end
 
@@ -180,8 +184,8 @@ module Veewee
           env.logger.debug("DefinitionDir '#{env.definition_dir}' succesfuly created")
         end
       else
-        env.logger.fatal("DefinitionDir '#{definition_dir}' is not writable")
-        raise Veewee::Error, "DefinitionDir '#{definition_dir}' is not writable"
+        env.logger.fatal("DefinitionDir '#{env.definition_dir}' is not writable")
+        raise Veewee::Error, "DefinitionDir '#{env.definition_dir}' is not writable"
       end
     end
 

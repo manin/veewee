@@ -1,6 +1,6 @@
 module Veewee
   module Command
-    class Vbox< Veewee::Command::GroupBase
+    class Vbox < Veewee::Command::GroupBase
 
       register :command => "vbox",
                :description => "Subcommand for VirtualBox",
@@ -15,15 +15,19 @@ module Veewee
       method_option :redirectconsole,:type => :boolean , :default => false, :aliases => "-r", :desc => "redirects console output"
       method_option :postinstall_include, :type => :array, :default => [], :aliases => "-i", :desc => "ruby regexp of postinstall filenames to additionally include"
       method_option :postinstall_exclude, :type => :array, :default => [], :aliases => "-e", :desc => "ruby regexp of postinstall filenames to exclude"
+      method_option :skip_to_postinstall, :aliases => ['--skip-to-postinstall'],  :type => :boolean,
+                    :default => false,
+                    :desc => "Skip to postinstall."
       def build(box_name)
-        box(box_name).build(options)
+        env.get_box(box_name).build(options)
       end
 
       desc "export [BOX_NAME]", "Exports the basebox to the vagrant format"
       method_option :debug,:type => :boolean , :default => false, :aliases => "-d", :desc => "enable debugging"
       method_option :force,:type => :boolean , :default => false, :aliases => "-f", :desc => "overwrite existing file"
+      method_option :vagrantfile,:type => :string , :default => "", :desc => "specify Vagrantfile"
       def export(box_name)
-       box(box_name).export_vagrant(options)
+       env.get_box(box_name).export_vagrant(options)
       end
 
       desc "validate [BOX_NAME]", "Validates a box against vagrant compliancy rules"

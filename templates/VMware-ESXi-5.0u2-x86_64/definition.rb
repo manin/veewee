@@ -16,11 +16,11 @@ Veewee::Session.declare({
   :boot_cmd_sequence => 
   [ 'O',
     ' ks=http://%IP%:%PORT%/ks.cfg<Enter>' ],
-    :kickstart_port => "7122", :kickstart_timeout => 10000, :kickstart_file => "ks.cfg",
+    :kickstart_port => "7122", :kickstart_timeout => 300, :kickstart_file => "ks.cfg",
     :ssh_login_timeout => "10000000", :ssh_user => "root", :ssh_password => "vagrant", :ssh_key => "",
     :ssh_host_port => "7222", :ssh_guest_port => "22",
     :sudo_cmd => "echo '%p'|sudo -S sh '%f'",
-    :shutdown_cmd => "/bin/halt",
+    :shutdown_cmd => "poweroff",
     :postinstall_files => ["vagrant_key.py", "vnc_enable.sh" ], :postinstall_timeout => 10000,
     :vmfusion => { :vm_options => { 'enable_hypervisor_support' => true,  'download_tools' => false } }
 })

@@ -1,9 +1,11 @@
 require 'veewee/provider/core/helper/ssh'
+require 'shellwords'
+require 'pathname'
+
 module Veewee
   module Provider
     module  Core
       module BoxCommand
-
 
         def ssh(command=nil,options={})
 
@@ -12,11 +14,8 @@ module Veewee
           host_ip=self.ip_address
 
           if (options[:interactive]==true)
-            # Command line options
-            extended_command="#{command}"
-
             unless host_ip.nil? || host_ip==""
-              ssh_command="ssh #{ssh_commandline_options(options)} #{host_ip} \"#{extended_command}\""
+              ssh_command="ssh #{ssh_commandline_options(options)} #{host_ip} #{Shellwords.escape(command) if command}"
 
               fg_exec(ssh_command,options)
 
@@ -25,7 +24,8 @@ module Veewee
             end
           else
             ssh_options={:user => definition.ssh_user,:password => definition.ssh_password, :port => definition.ssh_host_port}
-            ssh_execute(host_ip,command,ssh_options)
+            ssh_options[:keys] = ssh_key_to_a(definition.ssh_key) if definition.ssh_key
+            ssh_execute(host_ip, command, ssh_options)
           end
 
         end
@@ -39,11 +39,17 @@ module Veewee
             "-p #{ssh_options[:port]}",
             "-o UserKnownHostsFile=/dev/null",
             "-t -o StrictHostKeyChecking=no",
-            "-o IdentitiesOnly=yes",
             "-o VerifyHostKeyDNS=no"
           ]
-          if !(definition.ssh_key.nil? ||  definition.ssh_key.length!="")
-            command_options << "-i #{definition.ssh_key}"
+          if definition.ssh_key
+            command_options << "-o IdentitiesOnly=yes"
+            ssh_keys = ssh_key_to_a(definition.ssh_key)
+            ssh_keys.each do |ssh_keys|
+              # Filenames of SSH keys are relative to their definition
+              ssh_key = Pathname.new(ssh_keys)
+              ssh_key = File.join(definition.path, ssh_key) if ssh_key.relative?
+              command_options << "-i #{ssh_key}"
+            end
           end
           commandline_options="#{command_options.join(" ")} ".strip
 

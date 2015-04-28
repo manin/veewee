@@ -40,15 +40,15 @@ class TestVeeweeBuild < Test::Unit::TestCase
       assert_match(/bla/,result.stdout)
     }
   end
-  
+
   # Are there as many disks as in disk_count?
   def test_box_4_check_disk_count
-    assert_nothing_raised { 
+    assert_nothing_raised {
       result=@box.exec("lsblk -lo MODEL|grep -i harddisk|wc -l")
       assert_match(/#{@box.definition.disk_count}/,result.stdout)
     }
   end
-  
+
 
   # Try shutdown
   def test_box_5_shutdown

@@ -26,10 +26,10 @@ module Veewee
     # - :validation_dir  : directory that contains a list of validation tests, that can be run after building a box
     # - :tmp_dir         : directory that will be used for creating temporary files, needs to be rewritable, default to $environment_dir/tmp
     attr_accessor :template_path
-    attr_accessor :definition_dir
-    attr_accessor :iso_dir
+    attr_writer   :definition_dir
+    attr_writer   :iso_dir
     attr_accessor :validation_dir
-    attr_accessor :tmp_dir
+    attr_writer   :tmp_dir
 
     # The {UI} Object to communicate with the outside world
     attr_writer :ui
@@ -52,6 +52,8 @@ module Veewee
     # Path to the config file
     attr_reader :config_filepath
 
+    attr_accessor :current_provider
+
     def initialize(options = {})
       # symbolify commandline options
       options = options.inject({}) {|result,(key,value)| result.update({key.to_sym => value})}
@@ -64,11 +66,8 @@ module Veewee
       defaults = {
         :cwd => cwd,
         :veewee_filename => "Veeweefile",
-        :definition_dir => File.join(cwd, "definitions"),
-        :template_path => [File.expand_path(File.join(File.dirname(__FILE__), "..", "..", 'templates')), "templates"],
-        :iso_dir => File.join(cwd, "iso"),
+        :template_path => ["templates"],
         :validation_dir => File.join(File.expand_path(File.join(File.dirname(__FILE__), "..", "..")), "validation"),
-        :tmp_dir => File.join(cwd, "tmp")
       }
 
       options = defaults.merge(options)
@@ -103,6 +102,16 @@ module Veewee
       @ostypes = YAML.load_file(yamlfile)
 
       return self
+    end
+
+    def definition_dir
+      @definition_dir ||= File.join(cwd, "definitions")
+    end
+    def iso_dir
+      @iso_dir ||= File.join(cwd, "iso")
+    end
+    def tmp_dir
+      tmp_dir ||= File.join(cwd, "tmp")
     end
 
     def self.workdir
@@ -208,5 +217,13 @@ module Veewee
       @logger
     end
 
+    # Get box from current provider
+    def get_box(name)
+      if current_provider.nil?
+        raise "Provider is unset in the environment."
+      else
+        providers[current_provider].get_box(name)
+      end
+    end
   end #Class
 end #Module

@@ -3,11 +3,11 @@ require 'veewee/provider/core/helper/tcp'
 
 require 'veewee/provider/parallels/box/helper/status'
 require 'veewee/provider/parallels/box/helper/ip'
-require 'veewee/provider/parallels/box/helper/ssh_options'
 require 'veewee/provider/parallels/box/helper/console_type'
 require 'veewee/provider/parallels/box/helper/buildinfo'
 
 require 'veewee/provider/parallels/box/build'
+require 'veewee/provider/parallels/box/export'
 require 'veewee/provider/parallels/box/up'
 require 'veewee/provider/parallels/box/create'
 require 'veewee/provider/parallels/box/poweroff'

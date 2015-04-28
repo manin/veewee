@@ -10,6 +10,7 @@ definitions/*
 Vagrantfile
 Vagrantfile.*
 !lib/veewee/templates/Vagrantfile.erb
+!lib/veewee/provider/kvm/templates/Vagrantfile
 cookbooks/*
 manifests/*
 boxes/*
@@ -19,3 +20,5 @@ pkg/*
 virtualfloppy.vfd
 *.swp
 AutoPartition.app
+.rvmrc
+.project

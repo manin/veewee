@@ -10,14 +10,24 @@ Windows7:
   :vbox: Windows7
   :parallels: win-7
 Windows8:
-  :fusion:
+  :fusion: windows8
   :kvm:
   :vbox: Windows8
   :parallels: win-8
 Windows8_64:
-  :fusion:
+  :fusion: windows8-64
   :kvm:
   :vbox: Windows8_64
+  :parallels: win-8
+Windows81:
+  :fusion: windows8
+  :kvm:
+  :vbox: Windows81
+  :parallels: win-8
+Windows81_64:
+  :fusion: windows8-64
+  :kvm:
+  :vbox: Windows81_64
   :parallels: win-8
 WindowsNT:
   :fusion: winNT
@@ -110,7 +120,7 @@ FreeBSD:
   :vbox: FreeBSD
   :parallels: freebsd
 FreeBSD_64:
-  :fusion: FreeBSD_64
+  :fusion: freebsd-64
   :kvm:
   :vbox: FreeBSD_64
   :parallels: freebsd
@@ -288,6 +298,10 @@ Solaris_64:
   :kvm:
   :vbox: Solaris_64
   :parallels: solaris-10
+Solaris11_64:
+  :fusion: solaris10-64
+  :kvm:
+  :vbox: Solaris11_64
 Solaris9:
   :fusion: solaris
   :kvm:
@@ -334,22 +348,22 @@ NetBSD_64:
   :vbox: NetBSD_64
   :parallels: other
 ESXi5:
-  :fusion: vmkernel5 
+  :fusion: vmkernel5
   :kvm:
-  :vbox: 
-  :parallels: 
+  :vbox:
+  :parallels:
 Darwin_10_7:
   :fusion: darwin11
   :kvm:
-  :vbox:
+  :vbox: MacOS
   :parallels:
 Darwin_10_7_64:
   :fusion: darwin11-64
   :kvm:
-  :vbox:
+  :vbox: MacOS_64
   :parallels:
 Darwin_10_8_64:
   :fusion: darwin12-64
   :kvm:
-  :vbox:
+  :vbox: MacOS_64
   :parallels:

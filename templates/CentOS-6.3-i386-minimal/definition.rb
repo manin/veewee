@@ -7,15 +7,14 @@ Veewee::Session.declare({
   :disk_format => 'VDI',
   :hostiocache => 'on',
   :os_type_id => 'RedHat',
-  :virtualbox => { :vm_options => [ 
+  :virtualbox => { :vm_options => [
                                    'hwvirtex' => 'off',
-                                   'hwvirtexexcl' => 'off',
                                    'nestedpaging' => 'off',
                                    'natdnshostresolver1' => 'on'
                                   ]
                           },
   :iso_file => "CentOS-6.3-i386-minimal.iso",
-  :iso_src => "http://www.mirrorservice.org/sites/mirror.centos.org/6.3/isos/i386/CentOS-6.3-i386-minimal.iso",
+  :iso_src => "http://mirror.symnds.com/distributions/CentOS-vault/6.3/isos/i386/CentOS-6.3-i386-minimal.iso",
   :iso_md5 => "081ce8ba3e9f761a35d47f1c345562c1",
   :iso_download_timeout => 1000,
   :boot_wait => "10",
@@ -23,7 +22,7 @@ Veewee::Session.declare({
     '<Tab> text ks=http://%IP%:%PORT%/ks.cfg<Enter>'
   ],
   :kickstart_port => "7122",
-  :kickstart_timeout => 10000,
+  :kickstart_timeout => 300,
   :kickstart_file => "ks.cfg",
   :ssh_login_timeout => "10000",
   :ssh_user => "vagrant",

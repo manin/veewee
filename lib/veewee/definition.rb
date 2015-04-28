@@ -1,3 +1,4 @@
+require 'yaml'
 require 'ostruct'
 require 'veewee/provider/core/helper/iso'
 
@@ -20,7 +21,7 @@ module Veewee
 
     attr_accessor :boot_wait, :boot_cmd_sequence
 
-    attr_accessor :kickstart_port, :kickstart_ip, :kickstart_timeout, :kickstart_file
+    attr_accessor :kickstart_port, :kickstart_timeout, :kickstart_file
 
     attr_accessor :ssh_login_timeout, :ssh_user, :ssh_password, :ssh_key, :ssh_host_port, :ssh_guest_port
 
@@ -37,7 +38,7 @@ module Veewee
 
     attr_accessor :use_hw_virt_ext, :use_pae, :hostiocache, :use_sata
 
-    attr_accessor :iso_dowload_timeout, :iso_src, :iso_md5, :iso_sha1 , :iso_download_instructions
+    attr_accessor :iso_download_timeout, :iso_src, :iso_md5, :iso_sha1, :iso_sha256, :iso_download_instructions
 
     attr_accessor :virtualbox
     attr_accessor :vmfusion
@@ -47,6 +48,8 @@ module Veewee
 
     attr_accessor :skip_iso_transfer
     attr_accessor :skip_nat_mapping
+
+    attr_accessor :force_ssh_port
 
     def ui
       return @_ui if defined?(@_ui)
@@ -66,11 +69,11 @@ module Veewee
         @path = path
       end
 
-      # Default is 1 CPU + 256 Mem of memory + 8 Mem of video memory
-      @cpu_count = '1' ; @memory_size = '256'; @video_memory_size = '8'
+      # Default is 1 CPU + 256 MB of memory + 10 MB of video memory
+      @cpu_count = '1' ; @memory_size = '256'; @video_memory_size = '10'
 
       # Default there is no ISO file mounted
-      @iso_file = nil, @iso_src = nil ; @iso_md5 = nil ; @iso_sha1;  @iso_download_timeout = 1000 ; @iso_download_instructions = nil
+      @iso_file = nil, @iso_src = nil ; @iso_md5 = nil ; @iso_sha1;  @iso_sha256;  @iso_download_timeout = 1000 ; @iso_download_instructions = nil
 
       # Shares to add
       @add_shares = []
@@ -89,7 +92,7 @@ module Veewee
       #        :hostiocache => 'off' ,
       #        :os_type_id => 'Ubuntu',
       #        :boot_wait => "10", :boot_cmd_sequence => [ "boot"],
-      #        :kickstart_port => "7122", :kickstart_ip => "127.0.0.1", :kickstart_timeout => 10000,#
+      #        :kickstart_port => "7122", :kickstart_timeout => 60,#
       #        :ssh_login_timeout => "10000", :ssh_user => "vagrant", :ssh_password => "vagrant",:ssh_key => "",
       @ssh_host_port = "2222" ; @ssh_guest_port = "22"
       #        :ssh_host_port => "2222", :ssh_guest_port => "22", :sudo_cmd => "echo '%p'|sudo -S sh '%f'",
@@ -106,6 +109,9 @@ module Veewee
       @skip_iso_transfer = false
 
       @skip_nat_mapping = false
+
+      @force_ssh_port = false
+
       @params = {}
     end
 
@@ -117,6 +123,18 @@ module Veewee
         env.logger.info("definition") { " - #{key} : #{options[key]}" }
       end
 
+    end
+
+    def declare_yaml(*files)
+      files.each do |file|
+        if Hash === file
+          env.logger.info("Reading hash options")
+        else
+          env.logger.info("Reading yaml file: #{file}")
+          file = YAML.load_file(file)
+        end
+        declare(file)
+      end
     end
 
     # Class method to loading a definition
@@ -214,6 +232,10 @@ module Veewee
       end
     end
 
+    def box
+      env.get_box(name)
+    end
+
     private
 
     def ostype_valid?
@@ -223,10 +245,6 @@ module Veewee
       else
         return true
       end
-    end
-
-    def method_missing(m, *args, &block)
-      env.logger.info "There's no attribute #{m} defined for definition #{@name}-- ignoring it"
     end
 
   end #End Class

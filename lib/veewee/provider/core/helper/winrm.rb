@@ -22,6 +22,21 @@ module Veewee
           require 'em-winrm'
           require 'highline'
 
+          def build_winrm_options
+            {
+              :user => definition.winrm_user,
+              :pass => definition.winrm_password,
+              :port => definition.winrm_host_port,
+              :basic_auth_only => true,
+              :timeout => definition.winrm_login_timeout.to_i,
+              :operation_timeout => 600 # ten minutes
+            }
+          end
+
+          def winrm_options
+            build_winrm_options
+          end
+
           def winrm_up?(ip,options)
             begin
               if not @winrm_up
@@ -34,6 +49,7 @@ module Veewee
             rescue HTTPClient::ReceiveTimeoutError,HTTPClient::ConnectTimeoutError
               @winrm_up = false
             end
+            @winrm_up
           end
 
 
@@ -62,6 +78,8 @@ module Veewee
                       @connected = true
                       return true
                     rescue Exception => e
+                      @winrm_up = false
+                      next if e.message =~ /401/ # 2012 gives 401 errors
                       puts e.inspect
                       puts e.message
                       puts e.backtrace.inspect

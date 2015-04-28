@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [ -f .veewee_params ]
+then
+  . .veewee_params
+fi
+
 # postinstall.sh created from Mitchell's official lucid32/64 baseboxes
 # Extended by hedgehog consistent with the designation - alternate
 # Provides:

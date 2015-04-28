@@ -24,7 +24,7 @@ Veewee::Definition.declare({
     '<Enter>'
   ],
   :kickstart_port => "7122",
-  :kickstart_timeout => "10000",
+  :kickstart_timeout => "300",
   :kickstart_file => "preseed.cfg",
   :ssh_login_timeout => "10000",
   :ssh_user => "vagrant",
@@ -34,6 +34,15 @@ Veewee::Definition.declare({
   :ssh_guest_port => "22",
   :sudo_cmd => "echo '%p'|sudo -S sh '%f'",
   :shutdown_cmd => "halt -p",
-  :postinstall_files => [ "postinstall.sh" ],
+  :postinstall_files => [ 
+    "base.sh",
+    "ruby.sh",
+    "vagrant.sh",
+    "virtualbox.sh",
+    "puppet.sh",
+    "chef.sh",
+    "cleanup.sh",
+    "zerodisk.sh"
+  ],
   :postinstall_timeout => "10000"
 })

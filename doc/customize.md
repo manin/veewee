@@ -1,6 +1,8 @@
-# Customize Veewee Definitions
+# Customizing Definitions
 
-Definitions are stored under a directory 'definitions' relative to the current directory.
+## Definition overview
+
+Definitions are stored under the `definitions/` directory relative to the current directory.
 
     .
     ├── definitions
@@ -17,52 +19,56 @@ Definitions are stored under a directory 'definitions' relative to the current d
 
 The file `definition.rb` contains all the parameters to define the machine to be build (see below):
 
-  - memorysize
-  - number of cpus
-  - user account and password
-  - sudo command
-  - shutdown command
-  - URL and checksum to download the ISO
+* memory size
+* number of CPUs
+* user account and password
+* sudo command
+* shutdown command
+* URL and checksum to download the ISO
 
-When a new machine boots, it will typically fetch its initial configuration file over http from a _kickstart_ file
-defined in `kickstart_file`. These files are usually named `preseed.cfg` or `ks.cfg`.
+When a new machine boots, it will typically fetch its initial configuration file over http from a _kickstart_ file defined in `kickstart_file`. These files are usually named `preseed.cfg` or `ks.cfg`.
 
-You can define multiple files by providing an array of filenames:
+
+## Postinstall scripts
+
+You can define multiple postinstall files by providing an array of filenames within `definition.rb`, like so:
 
     :postinstall_files => [ "postinstall.sh",  "postinstall_2.sh" ],
 
-Once the initial installation is done, veewee will execute each `.sh` file on the machine.
+Once the initial installation is done, Veewee will execute each postinstall `.sh` file on the machine in chronologic order (order found in :postinstall_files array).
 
-INFO: The main reason for splitting up the `postinstall.sh` we used to have, is to make the steps more reusable
-for different virtualization systems. For example there is no need to install the Virtualbox Guest Additions
-on kvm or VMware Fusion.
+The main reason for splitting up the original `postinstall.sh` script into multiple files is to make the post-install steps as reusable and portable as possible for different virtualization systems and/or operating systems. For example, there is no need to install the Virtualbox Guest Additions on KVM or VMware Fusion.
 
 
-### Using ERB in files
+## Postinstall barebones
 
-Add `.erb` to your files in a definition and they will get rendered.
+A definition usually consists of at least these postinstall files:
+
+Filename        | Description
+----------------|-------------
+preseed.cfg     | Default options for the installer. See https://help.ubuntu.com/12.04/installation-guide/i386/preseed-using.html
+definition.rb   | Core definition of a box; like CPU, RAM, and the commands for the initial boot sequence
+postinstall.sh  | Steps that run _after_ installing the OS
+
+Newer definitions contain of even more files (they have broken `postinstall.sh` into multiple files) to get a finer separation of concerns for the installation.
+
+
+## Using ERB in files
+
+Add `.erb` to your files in a definition and they will get parsed accordingly.
 
 This is useful for generating kickstart, post-install at runtime.
 
-Thanks @mconigilaro for the contribution!
-
-A definition usually consists of these files:
-
-    definition.rb   - Core definition of a box like CPU, RAM and the commands for the initial boot sequence
-    postinstall.sh  - Steps that run 'after' installing the OS
-    preseed.cfg     - Default options for the installer. See https://help.ubuntu.com/12.04/installation-guide/i386/preseed-using.html
-
-Newer definitions contain of even more files to get a finer separation of concerns for the installation.
+Thanks to __@mconigilaro__ for the contribution!
 
 
-## definition.rb
+## Configuring definition.rb
 
-The core definition of a box. All crucial properties are defined here.
+The `definition.rb` file is the core definition file of each box. All crucial properties and postinstall scripts are defined here.
 
-The `boot_cmd_sequence` is probably the most interesting because it allows you to override the initial commands
-(like keyboard layout) that are fired up in the first boot sequence.
+The `boot_cmd_sequence` parameter allows you to override the initial commands (like keyboard layout) that are fired up in the first boot sequence.
 
-All other settings are used internally by veewee, the virtualization tool or simply for choosing the right ISO:
+All other settings are used internally by Veewee, the virtualization provider, or simply for choosing the proper ISO:
 
     Veewee::Definition.declare( {
         :cpu_count => '1',
@@ -86,7 +92,7 @@ All other settings are used internally by veewee, the virtualization tool or sim
             'initrd=/install/initrd.gz -- <Enter>'
         ],
         :kickstart_port => "7122",
-        :kickstart_timeout => "10000",
+        :kickstart_timeout => "60",
         :kickstart_file => "preseed.cfg",
         :ssh_login_timeout => "10000",
         :ssh_user => "vagrant",
@@ -99,15 +105,66 @@ All other settings are used internally by veewee, the virtualization tool or sim
         :postinstall_timeout => "10000"
     })
 
-IMPORTANT: If you need to change values in the templates, be sure to run `veewee vbox undefine` to remove the old definition and then `veewee vbox define` again to copy the updated template files into the definition.
+Available definitions:
 
-PRO Tip: If you change template settings please let us know why. We are very interested in improving the templates.
+Definition Option               | Default                 | Provider
+--------------------------------|-------------------------|-------------------------------------------
+:params                         | empty                   | core
+:cpu_count                      | 1 CPU                   | kvm, parallels, virtualbox, vmfusion
+:memory_size                    | 256 MB of memory        | kvm, parallels, virtualbox, vmfusion
+:video_memory_size              | 10 MB of video memory   | virtualbox
+:iso_file                       | no ISO file mounted     | core, kvm, parallels, virtualbox, vmfusion
+:iso_download_timeout           | 1000                    | unused
+:iso_src                        | empty                   | core
+:iso_md5                        | empty                   | core
+:iso_sha1                       | empty                   | core
+:iso_sha256                     | empty                   | core
+:iso_download_instructions      | empty                   | core
+:disk_size                      | 10240                   | kvm, virtualbox, vmfusion
+:disk_format                    | VDI                     | kvm, virtualbox
+:disk_variant                   | Standard                | virtualbox
+:disk_count                     | 1                       | virtualbox
+:os_type_id                     | uninitialised           | core, kvm, parallels, virtualbox, vmfusion
+:boot_wait                      | uninitialised           | core
+:boot_cmd_sequence              | empty                   | core
+:kickstart_port                 | uninitialised           | core
+:kickstart_timeout              | uninitialised           | core
+:kickstart_file                 | uninitialised           | core
+:ssh_login_timeout              | uninitialised           | kvm, parallels, virtualbox, vmfusion
+:ssh_user                       | uninitialised           | core, kvm, parallels, virtualbox, vmfusion
+:ssh_password                   | uninitialised           | core, kvm, parallels, virtualbox, vmfusion
+:ssh_key                        | uninitialised           | core
+:ssh_host_port                  | 2222                    | core, virtualbox
+:ssh_guest_port                 | 22                      | virtualbox
+:winrm_login_timeout            | 10000                   | virtualbox, vmfusion
+:winrm_user                     | uninitialised           | core, virtualbox, vmfusion
+:winrm_password                 | uninitialised           | core, virtualbox, vmfusion
+:winrm_host_port                | 5985                    | core, virtualbox, vmfusion
+:winrm_guest_port               | 5985                    | virtualbox
+:sudo_cmd                       | uninitialised           | core
+:shutdown_cmd                   | uninitialised           | core
+:pre_postinstall_file           | empty                   | core
+:postinstall_files              | empty                   | core
+:postinstall_timeout            | 10000                   | unused
+:floppy_files                   | empty                   | core, kvm, virtualbox, vmfusion
+:use_hw_virt_ext                | unused                  | unused
+:use_pae                        | unused                  | unused
+:hostiocache                    | uninitialised           | virtualbox
+:use_sata                       | true                    | virtualbox
+:add_shares                     | empty                   | vmfusion
+:vmdk_file                      | uninitialised           | vmfusion
+:skip_iso_transfer              | false                   | core
+:skip_nat_mapping               | false                   | virtualbox
+:force_ssh_port                 | false                   | core
+
+**IMPORTANT:** If you change values directly in a template, be sure to run `bundle exec veewee <provider> undefine` to remove the old definition and then `bundle exec veewee <provider> define` again to copy the updated template files into the definition.
+
+If you are an experienced devops veteran and have enhanced template settings, please let us know why. We are very interested in improving Veewee's templates.
 
 
 ## Provider `vm_options`
 
-Each provider _can_ take options that are specific to them; more details will
-be available in each provider documentation but let's have a quick overview:
+Each provider _can_ take options that are specific the provider; more details will be available in each [provider](providers.md) doc but let's have a quick overview here:
 
     Veewee::Definition.declare({
         :cpu_count => '1',
@@ -132,21 +189,45 @@ be available in each provider documentation but let's have a quick overview:
         }
     })
 
-This box will have `pae` and `ioapic` enabled on Virtualbox, and will use
-the `brlxc0` bridge on with kvm (on libvirt).
+This box will have `pae` and `ioapic` enabled with VirtualBox, and will use the `brlxc0` bridge with KVM (on libvirt).
+
+## Using Yaml for storing configuration
+
+You can store definitions in `*.yml` files, loading them is as easy as:
+
+    Veewee::Definition.declare_yaml(filename1, filename2 ...)
+
+For example given those 3 files:
+
+    .
+    ├── definitions
+    │   └── myubuntubox
+    │       ├── definition.rb
+    │       ├── definition.yml
+    │       ├── 64bit.yml
+    │       ├── 32bit.yml
+    │       └── ...
+
+And `definition.rb` with
+
+    Veewee::Definition.declare_yaml('definition.yml', '64bit.yml')
+
+Then veewee will read first `definition.yml` and `64bit.yml`, this way
+it is possible to mix multiple possible combinations of systems,
+versions, and architectures. All the configurations available in
+`declare` are also valid in `*yml` files.
+
+You can also mix options with file names like:
+
+    Veewee::Definition.declare_yaml(
+      {:cpu_count => '1'},
+      filename1,
+      {:ssh_user => 'vagrant'},
+      filename2,
+      ...
+    )
 
 
-## Changes between v0.2 -> v0.3
+## Up Next
 
-1. The `Veewee::Session.declare` is now _deprecated_ and you should use `Veewee::Definition.declare`.
-   'Postinstall_files' prefixed with an _underscore_ are not executed by default:
-       .
-       ├── definitions
-       │   └── myubuntubox
-       │       ├── _postinstall.sh    # NOT executed
-       │       ├── postinstall_2.sh   # GETS executed
-   You can enforce including or excluding files with the `--include` and `--exclude` flag when using the `<build>` command.
-   This allows you to use different scripts for installing ruby or to disable the installation of puppet or chef.
-2. The default user of definitions is now 'veewee' and not 'vagrant'.
-   This is because on other virtualizations like fusion and `kvm`, there is not relationship with the 'vagrant'.
-   The User 'vagrant' is created by the `vagrant.sh` script and not by the preseed or kickstart file.
+[Veeweefile](veeweefile.md) can be used to define your own paths.

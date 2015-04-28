@@ -24,23 +24,23 @@ module Fission
 
       fusion_version = :unknown
 
-      if File.exists?("/Library/Application Support/VMware Fusion/vmrun")
-        @attributes['vmrun_bin'] = '/Library/Application Support/VMware Fusion/vmrun'
-      end
-
-      if File.exists?("/Applications/VMware Fusion.app/Contents/Library/vmrun")  
-        @attributes['vmrun_bin'] = "/Applications/VMware Fusion.app/Contents/Library/vmrun"
-      end
+      @attributes['vmrun_bin'] = %w{
+        /Library/Application Support/VMware Fusion/vmrun
+        /Applications/VMware Fusion.app/Contents/Library/vmrun
+        /usr/local/bin/vmrun
+      }.find { |path| File.exists?(path) }
 
       if fusion_version == :unknown
       end
 
       @attributes['plist_file'] = File.expand_path('~/Library/Preferences/com.vmware.fusion.plist')
-      @attributes['gui_bin'] = File.expand_path('/Applications/VMware Fusion.app/Contents/MacOS/vmware')
+      @attributes['gui_bin'] = '/Applications/VMware Fusion.app/Contents/MacOS/vmware'
 
       load_from_file
 
+
       @attributes['vmrun_cmd'] = "#{@attributes['vmrun_bin'].gsub(' ', '\ ')} -T fusion"
+      @attributes['gui_bin'] = File.expand_path(@attributes['gui_bin'])
     end
 
     # Public: Helper method to access config atributes.  This is a shortcut for

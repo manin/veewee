@@ -16,7 +16,7 @@ ide1:0.present = "TRUE"
 ide1:0.fileName = "<%= iso_file %>"
 ide1:0.deviceType = "cdrom-image"
 <% end %>
-virtualHW.version = <%= virtualhw_version %>
+virtualHW.version = "<%= virtualhw_version %>"
 numvcpus = "<%= cpu_count %>"
 scsi0.present = "TRUE"
 scsi0.virtualDev = "<%= controller_type %>"
@@ -96,7 +96,7 @@ sound.startConnected = "FALSE"
 RemoteDisplay.vnc.enabled = "TRUE"
 RemoteDisplay.vnc.port = "<%= vnc_port %>"
 <% if enable_hypervisor_support == true %>vhv.enable = "TRUE"<% end %>
-<% if fusion_version.start_with?('5.') %>bios.bootOrder = "hdd,CDROM"<% end %>
+<% if fusion_version.start_with?('5.') or fusion_version.start_with?('6.') %>bios.bootOrder = "hdd,CDROM"<% end %>
 <% unless vmdk_file.nil? %>
 scsi0:2.present = "TRUE"
 scsi0:2.fileName = "<%= vmdk_file %>"
